@@ -1,0 +1,140 @@
+﻿@model FilmCritique.Entities.Model.Concrete.Movie
+<style>
+    /* Video container'ı için stil */
+    .video-container {
+        position: relative;
+        padding-bottom: 56.25%; /* 16:9 Aspect Ratio */
+        height: 0;
+        overflow: hidden;
+        max-width: 100%;
+        background: #000;
+        margin: 0 auto; /* Yatay ortalama */
+    }
+
+    /* Video wrapper'ı ortalamak için stil */
+    .video-wrapper {
+        display: flex;
+        justify-content: center; /* Yatay ortalama */
+        align-items: center; /* Dikey ortalama */
+        height: 100%; /* Yüksekliği içeriğin yüksekliğine göre ayarlar */
+    }
+
+    /* iframe'i tam olarak yerleştirmek için stil */
+    .video-container iframe {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+    }
+
+    .movie-poster {
+        max-width: 100%; /* Resmi container genişliğine göre sınırla */
+        height: auto; /* Yüksekliği orantılı olarak ayarla */
+        border-radius: 8px; /* Köşeleri yuvarla */
+    }
+
+    .movie-details {
+        margin: 20px auto;
+        max-width: 1200px;
+        padding: 20px;
+    }
+
+    .movie-header {
+        margin-bottom: 20px;
+    }
+
+    .movie-info {
+        background-color: #f8f9fa;
+        padding: 15px;
+        border-radius: 8px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    }
+
+    .movie-info p {
+        margin: 5px 0;
+    }
+
+    h3 {
+        margin-top: 20px;
+    }
+
+    .info-list {
+        list-style: none;
+        padding: 0;
+    }
+
+    .info-list li {
+        background: #f8f9fa;
+        margin-bottom: 5px;
+        padding: 10px;
+        border-radius: 4px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .text-center {
+        text-align: center;
+    }
+</style>
+
+<div class="movie-details border border-primary rounded shadow bg-black bg-opacity-25">
+    <div class="movie-header text-center">
+        <h1>@Model.MovieName</h1>
+    </div>
+
+    <div class="row">
+        <div class="col-md-8">
+            @if (!string.IsNullOrEmpty(Model.PhotoUrl))
+            {
+                <img src="@($"/images/moviePhotos/{Model.PhotoUrl}")" alt="Movie Poster" class="movie-poster" />
+            }
+        </div>
+        <div class="col-md-4 movie-info">
+            <p><strong>Release Date:</strong> @Model.ReleaseDate.ToString("MMMM dd, yyyy")</p>
+            <p><strong>Duration:</strong> @Model.Duration minutes</p>
+            <p><strong>Admin Rating:</strong> @Model.AdminRating / 10</p>
+        </div>
+    </div>
+
+    @if (!string.IsNullOrEmpty(Model.TeaserUrl))
+    {
+
+        // URL'den video ID'sini çıkartma
+        var videoUrl = new Uri(Model.TeaserUrl);
+        var queryParameters = Microsoft.AspNetCore.WebUtilities.QueryHelpers.ParseQuery(videoUrl.Query);
+        var videoId = queryParameters["v"].ToString();
+        var embedUrl = $"https://www.youtube.com/embed/{videoId}";
+
+
+        <div class="video-container col-12 justify-content-center mt-3">
+            <iframe width="560" height="315" src="@embedUrl" frameborder="0" allowfullscreen></iframe>
+        </div>
+    }
+    <h4 class="mt-3">Açıklama
+    </h4>
+    <p class="">@Model.Description</p>
+
+    <h3>Directors</h3>
+    <ul class="info-list">
+        @foreach (var director in Model.MovieDirectors)
+        {
+            <li>@director.Director.FullName</li>
+        }
+    </ul>
+
+    <h3>Actors</h3>
+    <ul class="info-list">
+        @foreach (var actor in Model.MovieActors)
+        {
+            <li>@actor.Actor.FullName</li>
+        }
+    </ul>
+
+    <h3>Categories</h3>
+    <ul class="info-list">
+        @foreach (var category in Model.MovieCategories)
+        {
+            <li>@category.Category.Name</li>
+        }
+    </ul>
+</div>

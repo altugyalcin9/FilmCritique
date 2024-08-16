@@ -1,0 +1,27 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <ItemGroup>
+    <Content Remove="wwwroot\images\moviePhotos\123a3148-0361-4b06-bb4a-908fbe184510.jpeg" />
+    <Content Remove="wwwroot\images\moviePhotos\23618073-fe13-4ac7-8165-181804391d2f.jpg" />
+    <Content Remove="wwwroot\images\moviePhotos\57a40869-8aab-4538-a22e-2edda0a5e639.jpg" />
+    <Content Remove="wwwroot\images\moviePhotos\8f624063-9765-47ba-bb46-5ddd632fcca5.jfif" />
+    <Content Remove="wwwroot\images\moviePhotos\c0ec5e3b-f754-486c-9781-f0307e926cba.jpg" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="8.0.2" />
+    <PackageReference Include="Pomelo.EntityFrameworkCore.MySql" Version="8.0.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\FilmCritique.BL\FilmCritique.BL.csproj" />
+    <ProjectReference Include="..\FilmCritique.Entities\FilmCritique.Entities.csproj" />
+  </ItemGroup>
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+</Project>

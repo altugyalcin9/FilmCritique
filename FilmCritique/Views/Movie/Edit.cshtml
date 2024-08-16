@@ -1,0 +1,88 @@
+﻿@model FilmCritique.Models.ViewModels.MovieEditViewModel
+
+@{
+    ViewData["Title"] = "Edit Movie";
+}
+
+<h2>Edit Movie</h2>
+
+<form asp-action="Edit" method="post" enctype="multipart/form-data">
+    <div class="form-group">
+        <label asp-for="MovieName" class="control-label"></label>
+        <input asp-for="MovieName" class="form-control" />
+        <span asp-validation-for="MovieName" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="ReleaseDate" class="control-label"></label>
+        <input asp-for="ReleaseDate" class="form-control" />
+        <span asp-validation-for="ReleaseDate" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="Duration" class="control-label"></label>
+        <input asp-for="Duration" class="form-control" />
+        <span asp-validation-for="Duration" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="Description" class="control-label"></label>
+        <textarea asp-for="Description" class="form-control"></textarea>
+        <span asp-validation-for="Description" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="TeaserUrl" class="control-label"></label>
+        <input asp-for="TeaserUrl" class="form-control" />
+        <span asp-validation-for="TeaserUrl" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="AdminRating" class="control-label"></label>
+        <input asp-for="AdminRating" class="form-control" />
+        <span asp-validation-for="AdminRating" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label>Existing Photo</label><br />
+        <img src="~/images/moviePhotos/@Model.ExistingPhoto" alt="Current Photo" width="200" />
+    </div>
+
+    <div class="form-group">
+        <label asp-for="PhotoUrl" class="control-label"></label>
+        <input asp-for="PhotoUrl" class="form-control-file" />
+        <span asp-validation-for="PhotoUrl" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label>Actors</label>
+        <select asp-for="SelectedActorIds" class="form-control" asp-items="Model.Actors" multiple="multiple"></select>
+    </div>
+
+    <div class="form-group">
+        <label>Directors</label>
+        <select asp-for="SelectedDirectorIds" class="form-control" asp-items="Model.Directors" multiple="multiple"></select>
+    </div>
+
+    <div class="form-group">
+        <label>Categories</label>
+        <select asp-for="SelectedCategoryIds" class="form-control" asp-items="Model.Categories" multiple="multiple"></select>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Save Changes</button>
+    <button type="button" class="btn btn-secondary" onclick="window.history.back();">Cancel</button>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $('#SelectedActorIds').select2();
+            $('#SelectedDirectorIds').select2();
+            $('#SelectedCategoryIds').select2();
+        });
+    </script>
+}

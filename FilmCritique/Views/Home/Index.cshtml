@@ -1,0 +1,70 @@
+﻿@model IEnumerable<FilmCritique.Entities.Model.Concrete.Movie> 
+
+@{
+    ViewData["Title"] = "Movies";
+}
+
+<!-- CSS stilini doğrudan sayfada tanımlama -->
+<style>
+    .card {
+        max-width: 32%;
+        min-width: 32%; /* Kart genişliğini ayarlayın */
+        margin-bottom: 10px; /* Kartlar arasında boşluk */
+        overflow: hidden; /* Kartın içeriğini sınırlandırır */
+    }
+    .card-img-top {
+        width: auto%; /* Resmin genişliğini kartın genişliğine uydurur */
+        height: 65%; /* Resmin yüksekliğini sabitler */
+        object-fit: cover; /* Resmi kartın içine düzgün bir şekilde sığdırır */
+    }
+    .card-body {
+        height: auto; /* Kart içeriğinin yüksekliğini ayarlar */
+        overflow: hidden; /* İçeriğin taşmasını engeller */
+    }
+    .card-footer {
+        font-size: 0.9rem; /* Ayarlanmış font boyutu */
+    }
+    .card-deck {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 1rem; /* Kartlar arasında boşluk */
+    }
+</style>
+
+<div class="container mt-4">
+    <div class="card-deck">
+        @foreach (var movie in Model)
+        {
+            <div class="card border-2 shadow border-secondary">
+                <img src="@($"/images/moviePhotos/{movie.PhotoUrl}")" class="card-img-top" alt="@movie.MovieName" />
+                <div class="card-body border-top shadow">
+                    <h5 class="card-title">@movie.MovieName</h5>
+                    <p class="card-text">@movie.Description</p>
+                    <div class="col-12">
+                        <a asp-action="Details" asp-controller="Movie" asp-route-id="@movie.Id" class="col-12 btn btn-primary">Details</a>
+                        <div class="col-12 row mt-1">
+                            @if (ViewBag.Role == "Admin")
+                            {
+                                <a asp-action="Delete" asp-controller="Movie" asp-route-id="@movie.Id" class="col-6 btn btn-danger">Delete</a>
+                                <a asp-action="Edit" asp-controller="Movie" asp-route-id="@movie.Id" class="col-6 btn btn-warning">Edit</a>
+
+                            }
+                            else
+                            {
+                                <a asp-action="Comment" asp-controller="Movie" asp-route-id="@movie.Id" class="col-12 btn btn-danger">Comment</a>
+                               // <a asp-action="Edit" asp-controller="Movie" asp-route-id="@movie.Id" class="col-6 btn btn-warning">Edit</a>
+                            }
+ 
+                        </div>
+                   
+                    </div>
+                </div>
+                <div class="card-footer text-muted">
+                    Release Date: @movie.ReleaseDate.ToString("MMMM dd, yyyy")<br>
+                    Duration: @movie.Duration minutes<br>
+                    Rating: @movie.AdminRating
+                </div>
+            </div>
+        }
+    </div>
+</div>

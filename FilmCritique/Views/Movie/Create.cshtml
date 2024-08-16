@@ -1,0 +1,77 @@
+@model MovieViewModel
+
+@{
+    ViewData["Title"] = "Create Movie";
+}
+
+<h1>Create Movie</h1>
+
+<form asp-action="Create" method="post" enctype="multipart/form-data">
+    <div class="form-group">
+        <label asp-for="MovieName" class="control-label"></label>
+        <input asp-for="MovieName" class="form-control" />
+        <span asp-validation-for="MovieName" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="ReleaseDate" class="control-label"></label>
+        <input asp-for="ReleaseDate" type="date" class="form-control" />
+        <span asp-validation-for="ReleaseDate" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="TeaserUrl" class="control-label"></label>
+        <input asp-for="TeaserUrl" class="form-control" />
+        <span asp-validation-for="TeaserUrl" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="PhotoUrl" class="control-label"></label>
+        <input asp-for="PhotoUrl" type="file" class="form-control-file" />
+        <span asp-validation-for="PhotoUrl" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="Duration" class="control-label"></label>
+        <input asp-for="Duration" type="number" class="form-control" />
+        <span asp-validation-for="Duration" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="Description" class="control-label"></label>
+        <textarea asp-for="Description" class="form-control"></textarea>
+        <span asp-validation-for="Description" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="AdminRating" class="control-label"></label>
+        <input asp-for="AdminRating" type="number" step="0.1" min="0" max="10" class="form-control" />
+        <span asp-validation-for="AdminRating" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label>Actors</label>
+        <select asp-for="SelectedActorIds" asp-items="ViewBag.Actors" multiple="multiple" class="form-control">
+            <option value="">Select Actors</option>
+        </select>
+    </div>
+
+    <div class="form-group">
+        <label>Directors</label>
+        <select asp-for="SelectedDirectorIds" asp-items="ViewBag.Directors" multiple="multiple" class="form-control">
+            <option value="">Select Directors</option>
+        </select>
+    </div>
+
+    <div class="form-group">
+        <label>Categories</label>
+        <select asp-for="SelectedCategoryIds" asp-items="ViewBag.Categories" multiple="multiple" class="form-control">
+            <option value="">Select Categories</option>
+        </select>
+    </div>
+
+    <div class="form-group">
+        <button type="submit" class="btn btn-primary">Create</button>
+        <a asp-action="Index" class="btn btn-secondary">Cancel</a>
+    </div>
+</form>
