@@ -22,7 +22,7 @@ namespace FilmCritique.Controllers
         public async Task<IActionResult> Index()
         {
             List<Movie> movies = await _movieManager.GetAllAsync();
-            ViewBag.Role = "Admin.";
+            ViewBag.Role = "Admin";
             return View(movies);
         }
         
