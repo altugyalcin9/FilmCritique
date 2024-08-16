@@ -28,7 +28,7 @@ namespace FilmCritique.Controllers
         {
             if (ModelState.IsValid)
             {
-                var appuser = _context.AppUsers.SingleOrDefault(c => c.Email == model.Email && c.Password == model.Password);
+                var appuser = _context.AppUsers.SingleOrDefault(c => c.Email == model.Email );
                 if (appuser != null)
                 {
                     // Oturum açma işlemi
@@ -58,7 +58,6 @@ namespace FilmCritique.Controllers
                         FirstName = model.FirstName,
                         LastName = model.LastName,                       
                         Email = model.Email,
-                        Password = model.Password
                       
                     };
 

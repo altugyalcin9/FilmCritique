@@ -40,8 +40,8 @@
                 <div class="card-body border-top shadow">
                     <h5 class="card-title">@movie.MovieName</h5>
                     <p class="card-text">@movie.Description</p>
-                    <div class="col-12">
-                        <a asp-action="Details" asp-controller="Movie" asp-route-id="@movie.Id" class="col-12 btn btn-primary">Details</a>
+                    <div class="col-12" style="display:flex; flex-direction:column; align-items:center;">
+                        <a asp-action="Details" asp-controller="Movie" asp-route-id="@movie.Id" class="col-12 btn btn-primary" >Details</a>
                         <div class="col-12 row mt-1">
                             @if (ViewBag.Role == "Admin")
                             {

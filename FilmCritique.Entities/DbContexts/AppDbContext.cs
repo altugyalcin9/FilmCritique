@@ -1,4 +1,5 @@
 ﻿using FilmCritique.Entities.Model.Concrete;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -10,7 +11,7 @@ using System.Text;
 using System.Threading.Tasks;
 namespace FilmCritique.Entities.DbContexts
 {
-    public class AppDbContext : DbContext
+    public class AppDbContext : IdentityDbContext
     {
         public DbSet<Actor> Actors { get; set; }
         public DbSet<AppUser> AppUsers { get; set; }
