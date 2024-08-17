@@ -11,7 +11,7 @@ using System.Text;
 using System.Threading.Tasks;
 namespace FilmCritique.Entities.DbContexts
 {
-    public class AppDbContext : IdentityDbContext
+    public class AppDbContext : IdentityDbContext<AppUser>
     {
         public DbSet<Actor> Actors { get; set; }
         public DbSet<AppUser> AppUsers { get; set; }

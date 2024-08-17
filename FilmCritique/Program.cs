@@ -1,7 +1,9 @@
 using FilmCritique.BL.Managers.Abstract;
 using FilmCritique.BL.Managers.Concrete;
 using FilmCritique.Entities.DbContexts;
+using FilmCritique.Entities.Model.Concrete; // AppUser sýnýfýný eklediðinizden emin olun
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Identity; // Identity için gerekli kütüphane
 
 namespace FilmCritique
 {
@@ -20,24 +22,26 @@ namespace FilmCritique
                 options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString));
             });
 
+            // Identity hizmetlerini ekleyin
+            builder.Services.AddIdentity<AppUser, IdentityRole>(options =>
+            {
+                options.Password.RequireDigit = true;
+                options.Password.RequireLowercase = true;
+                options.Password.RequireUppercase = true;
+                options.Password.RequiredLength = 6;
+                options.Password.RequireNonAlphanumeric = false;
+            })
+            .AddEntityFrameworkStores<AppDbContext>()
+            .AddDefaultTokenProviders();
+
+            // DI ile baðýmlýlýklarý ekleyin
             builder.Services.AddScoped<IMovieManager, MovieManager>();
-
-
             builder.Services.AddScoped<IActorManager, ActorManager>();
             builder.Services.AddScoped<IMovieActorManager, MovieActorManager>();
-
-
-
             builder.Services.AddScoped<IDirectorManager, DirectorManager>();
             builder.Services.AddScoped<IMovieDirectorManager, MovieDirectorManager>();
-
-
-
             builder.Services.AddScoped<ICategoryManager, CategoryManager>();
             builder.Services.AddScoped<IMovieCategoryManager, MovieCategoryManager>();
-
-
-
 
             var app = builder.Build();
 
@@ -45,7 +49,6 @@ namespace FilmCritique
             if (!app.Environment.IsDevelopment())
             {
                 app.UseExceptionHandler("/Home/Error");
-                // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();
             }
 
@@ -54,6 +57,7 @@ namespace FilmCritique
 
             app.UseRouting();
 
+            app.UseAuthentication(); // Identity için Authentication middleware'i ekleyin
             app.UseAuthorization();
 
             app.MapControllerRoute(
