@@ -1,4 +1,8 @@
-﻿<!DOCTYPE html>
+﻿@using FilmCritique.Entities.Model.Concrete
+@using Microsoft.AspNetCore.Identity
+@inject SignInManager<AppUser> SignInManager
+@inject UserManager<AppUser> UserManager
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
@@ -31,6 +35,13 @@
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-area="" asp-controller="Movie" asp-action="Create">Create Movie</a>
                         </li>
+                       @if (SignInManager.IsSignedIn(User))
+                    {
+                        var user = await UserManager.GetUserAsync(User);
+                        <li class="nav-item">
+                            <a class="nav-link" href="#">@user.FirstName @user.LastName</a>
+                        </li>
+                    }
                     </ul>
                 </div>
             </div>

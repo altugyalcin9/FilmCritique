@@ -23,6 +23,7 @@ namespace FilmCritique.Controllers
         {
             List<Movie> movies = await _movieManager.GetAllAsync();
             ViewBag.Role = "Admin";
+
             return View(movies);
         }
         

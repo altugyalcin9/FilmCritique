@@ -56,28 +56,26 @@ namespace FilmCritique.Controllers
         }
 
         [HttpPost]
-        public IActionResult Register(RegisterViewModel model)
+        public async Task<IActionResult> Register(RegisterViewModel model)
         {
             if (ModelState.IsValid)
             {
-                if (!_context.AppUsers.Any(c => c.Email == model.Email))
+                var user = new AppUser { FirstName=model.FirstName,LastName=model.LastName , UserName = model.Email, Email = model.Email };
+                var result = await _userManager.CreateAsync(user, model.Password);
+
+                if (result.Succeeded)
                 {
-                    var appuser = new AppUser
-                    {
-                        FirstName = model.FirstName,
-                        LastName = model.LastName,                       
-                        Email = model.Email,
-                      
-                    };
-
-                    _context.AppUsers.Add(appuser);
-                    _context.SaveChanges();
-
-                    return RedirectToAction("Login", "Account");
+                    await _signInManager.SignInAsync(user, isPersistent: false);
+                    return RedirectToAction("Index", "Home");
                 }
-                ModelState.AddModelError("Email", "This Email is already registered.");
+
+                foreach (var error in result.Errors)
+                {
+                    ModelState.AddModelError(string.Empty, error.Description);
+                }
             }
 
+            // Eğer buraya geldiyseniz, formda bir hata var demektir. Formu tekrar gösteriyoruz.
             return View(model);
         }
 
