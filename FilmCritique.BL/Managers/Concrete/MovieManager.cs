@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 
 namespace FilmCritique.BL.Managers.Concrete
 {
-    public class MovieManager:ManagerBase<Movie>,IMovieManager
+    public class MovieManager : ManagerBase<Movie>, IMovieManager
     {
         private readonly AppDbContext _context;
 
@@ -20,6 +20,14 @@ namespace FilmCritique.BL.Managers.Concrete
         {
             _context = context ?? throw new ArgumentNullException(nameof(context));
         }
+        public async Task<List<UserReview>> GetCommentsByMovieIdAsync(int movieId)
+        {
+            return await _context.UserReviews
+                                 .Where(review => review.MovieId == movieId)
+                                 .ToListAsync();
+        }
+
+
         public async Task<Movie> GetMovieByIdAsync(int id)
         {
             /*var movie = await _context.Movies

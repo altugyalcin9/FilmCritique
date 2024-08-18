@@ -26,9 +26,14 @@ namespace FilmCritique.Entities.Model.Concrete
 
         public ICollection<UserReview>? UserReviews { get; set; }
 
+        public double AverageRating
+        {
+            get
+            {
+                return UserReviews.Any() ? UserReviews.Average(r => r.Rating) : 0;
+            }
 
 
-        // ICollection<Movie> MovieDire { get; set;
-
+        }
     }
 }

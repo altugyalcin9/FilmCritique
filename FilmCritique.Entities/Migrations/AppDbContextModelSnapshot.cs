@@ -664,7 +664,7 @@ namespace FilmCritique.Entities.Migrations
 
                     b.HasIndex("MovieId");
 
-                    b.ToTable("UserReview");
+                    b.ToTable("UserReviews");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>

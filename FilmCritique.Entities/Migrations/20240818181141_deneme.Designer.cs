@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace FilmCritique.Entities.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20240817152734_initdbbb")]
-    partial class initdbbb
+    [Migration("20240818181141_deneme")]
+    partial class deneme
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

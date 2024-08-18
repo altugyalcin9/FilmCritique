@@ -1,9 +1,9 @@
-using FilmCritique.Models;
+ï»¿using FilmCritique.Models;
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
 using FilmCritique.BL.Managers.Abstract;
 using FilmCritique.Entities.Model.Concrete;
-using Microsoft.AspNetCore.Identity; // Identity kütüphanesi ekleyin
+using Microsoft.AspNetCore.Identity; // Identity kÃ¼tÃ¼phanesi ekleyin
 
 namespace FilmCritique.Controllers
 {
@@ -24,20 +24,20 @@ namespace FilmCritique.Controllers
         {
             List<Movie> movies = await _movieManager.GetAllAsync();
 
-            // Kullanıcının rolünü al
-            string userRole = "User"; // Varsayılan rol
+            // KullanÃ½cÃ½nÃ½n rolÃ¼nÃ¼ al
+            string userRole = "User"; // VarsayÃ½lan rol
 
-            var user = await _userManager.GetUserAsync(User); // Şu anki kullanıcıyı al
+            var user = await _userManager.GetUserAsync(User); // Ãu anki kullanÃ½cÃ½yÃ½ al
             if (user != null)
             {
-                var roles = await _userManager.GetRolesAsync(user); // Kullanıcının rollerini al
+                var roles = await _userManager.GetRolesAsync(user); // KullanÃ½cÃ½nÃ½n rollerini al
                 if (roles.Any())
                 {
-                    userRole = roles.First(); // İlk rolü al (Varsayılan olarak)
+                    userRole = roles.First(); // Ãlk rolÃ¼ al (VarsayÃ½lan olarak)
                 }
             }
 
-            ViewBag.Role = userRole; // Rolü ViewBag'e ekle
+            ViewBag.Role = userRole; // RolÃ¼ ViewBag'e ekle
 
             return View(movies);
         }

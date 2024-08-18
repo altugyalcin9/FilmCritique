@@ -1,4 +1,4 @@
-using FilmCritique.Models;
+Ôªøusing FilmCritique.Models;
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
 
@@ -10,11 +10,16 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using FilmCritique.Model.ViewModels;
 using Microsoft.EntityFrameworkCore;
 using FilmCritique.Models.ViewModels;
+using Microsoft.AspNetCore.Identity;
+using FilmCritique.Entities.DbContexts;
+using FilmCritique.ViewModels;
 
 namespace FilmCritique.Controllers
 {
     public class MovieController : Controller
     {
+        private readonly AppDbContext _context;
+        private readonly UserManager<AppUser> _userManager;
         private readonly IMovieManager _movieManager;
         private readonly IMovieActorManager _movieActorManager;
         private readonly IActorManager _actorManager;
@@ -31,8 +36,10 @@ namespace FilmCritique.Controllers
 
         public MovieController(IWebHostEnvironment webHostEnvironment, IMovieManager movieManager, IMovieActorManager movieActorManager,
          IMovieDirectorManager movieDirectorManager, IMovieCategoryManager movieCategoryManager,
-         IActorManager actorManager, IDirectorManager directorManager, ICategoryManager categoryManager)
+         IActorManager actorManager, IDirectorManager directorManager, ICategoryManager categoryManager,AppDbContext context, UserManager<AppUser> userManager)
         {
+            _userManager = userManager;
+            _context = context;
             _movieManager = movieManager;
             _movieActorManager = movieActorManager;
             _movieDirectorManager = movieDirectorManager;
@@ -41,6 +48,7 @@ namespace FilmCritique.Controllers
             _directorManager = directorManager;
             _categoryManager = categoryManager;
             _webHostEnvironment = webHostEnvironment;
+            _userManager = userManager;
         }
         public async Task<IActionResult> Create()
         {
@@ -52,7 +60,7 @@ namespace FilmCritique.Controllers
 
             return View(model);
         }
-       
+
 
         // POST: /Movies/Create
         [HttpPost]
@@ -155,17 +163,17 @@ namespace FilmCritique.Controllers
 
             return View(movie);
         }
-        
+
         public async Task<IActionResult> Delete(int id)
         {
             var movie = await _movieManager.GetMovieByIdAsync(id);
-            if(movie != null)
+            if (movie != null)
             {
                 _movieManager.DeleteAsync(movie);
-                if(movie.PhotoUrl != null)
+                if (movie.PhotoUrl != null)
                 {
-                    var imagePath = Path.Combine(_webHostEnvironment.WebRootPath,$"images\\moviePhotos\\{movie.PhotoUrl}");
-                    if(System.IO.File.Exists(imagePath))
+                    var imagePath = Path.Combine(_webHostEnvironment.WebRootPath, $"images\\moviePhotos\\{movie.PhotoUrl}");
+                    if (System.IO.File.Exists(imagePath))
                     {
                         System.IO.File.Delete(imagePath);
                     }
@@ -175,10 +183,10 @@ namespace FilmCritique.Controllers
             return RedirectToAction("Index", "Home");
         }
 
-        public async Task<IActionResult> Edit (int id)
+        public async Task<IActionResult> Edit(int id)
         {
             var movie = await _movieManager.GetMovieByIdAsync(id);
-            if(movie == null)
+            if (movie == null)
             {
                 return NotFound();
             }
@@ -206,24 +214,76 @@ namespace FilmCritique.Controllers
             return View(model);
         }
 
+        // MovieController.cs
         [HttpGet]
-        public async Task<IActionResult> Comment([FromRoute]int id)
+        public async Task<IActionResult> Comment([FromRoute] int id)
         {
             var movie = await _movieManager.GetMovieByIdAsync(id);
             if (movie == null)
             {
                 return NotFound();
             }
-          ViewBag.movie="movie";
-            List<string> strings = new List<string>() {"ali","veli" };
-            ViewBag.Comments = strings;
+
+            ViewBag.movie = "movie";
+            var comments = await _movieManager.GetCommentsByMovieIdAsync(id);
+            ViewBag.Comments = comments;
+
             ViewData["Actors"] = new SelectList(await _actorManager.GetAllAsync(), "Id", "FullName");
             ViewData["Directors"] = new SelectList(await _directorManager.GetAllAsync(), "Id", "FullName");
             ViewData["Categories"] = new SelectList(await _categoryManager.GetAllAsync(), "Id", "Name");
 
-
             return View(movie);
         }
+
+
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Comment(int id, CreateReviewViewModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                // Yorum olu≈üturulamadƒ±ysa, mevcut filmi ve yorumlarƒ± tekrar g√∂ster
+                var movie = await _context.Movies
+                    .Include(m => m.MovieActors)
+                    .Include(m => m.MovieDirectors)
+                    .Include(m => m.MovieCategories)
+                    .FirstOrDefaultAsync(m => m.Id == id);
+                if (movie == null)
+                {
+                    return NotFound();
+                }
+
+                ViewBag.movie = "movie";
+                var comments = await _context.UserReviews
+                    .Where(r => r.MovieId == id)
+                    .Select(r => r.Comment)
+                    .ToListAsync();
+
+                ViewBag.Comments = comments;
+                ViewData["Actors"] = new SelectList(await _context.Actors.ToListAsync(), "Id", "FullName");
+                ViewData["Directors"] = new SelectList(await _context.Directors.ToListAsync(), "Id", "FullName");
+                ViewData["Categories"] = new SelectList(await _context.Categories.ToListAsync(), "Id", "Name");
+
+                return View("Comment", movie);
+            }
+
+            // Yorum ekleme i≈ülemi
+            var userId = User.Identity.Name; // ≈ûu anki kullanƒ±cƒ±nƒ±n ID'si
+            var review = new UserReview
+            {
+                Comment = model.Comment,
+                Rating = model.Rating,
+                MovieId = id,
+                UserId = userId // Kullanƒ±cƒ± ID'sini ekle
+            };
+
+            _context.UserReviews.Add(review);
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction("Comment", new { id = id });
+        }
+
 
 
 
@@ -231,89 +291,89 @@ namespace FilmCritique.Controllers
         // POST: Movie/Edit/5
         [HttpPost]
 
-       public async Task<IActionResult> Edit(MovieEditViewModel model)
-{
-    if (ModelState.IsValid)
-    {
-        var movie = await _movieManager.GetByIdAsync(model.Id);
-
-        if (movie == null)
+        public async Task<IActionResult> Edit(MovieEditViewModel model)
         {
-            return NotFound();
-        }
-
-        // G¸ncellenen alanlar˝ kontrol edin
-        if (model.MovieName != null)
-        {
-            movie.MovieName = model.MovieName;
-        }
-
-        if (model.ReleaseDate.HasValue)
-        {
-            movie.ReleaseDate = model.ReleaseDate.Value;
-        }
-
-        if (model.Duration.HasValue)
-        {
-            movie.Duration = model.Duration.Value;
-        }
-
-        if (model.Description != null)
-        {
-            movie.Description = model.Description;
-        }
-
-        if (model.TeaserUrl != null)
-        {
-            movie.TeaserUrl = model.TeaserUrl;
-        }
-
-        if (model.AdminRating.HasValue)
-        {
-            movie.AdminRating = model.AdminRating.Value;
-        }
-
-        // Fotoraf g¸ncellemesi
-        if (model.PhotoUrl != null)
-        {
-            string fileName = Guid.NewGuid().ToString() + Path.GetExtension(model.PhotoUrl.FileName);
-            string productPath = Path.Combine(_webHostEnvironment.WebRootPath, @"images/moviePhotos");
-            using (var fileStream = new FileStream(Path.Combine(productPath, fileName), FileMode.Create))
+            if (ModelState.IsValid)
             {
-                await model.PhotoUrl.CopyToAsync(fileStream);
+                var movie = await _movieManager.GetByIdAsync(model.Id);
+
+                if (movie == null)
+                {
+                    return NotFound();
+                }
+
+                // G√ºncellenen alanlar√Ω kontrol edin
+                if (model.MovieName != null)
+                {
+                    movie.MovieName = model.MovieName;
+                }
+
+                if (model.ReleaseDate.HasValue)
+                {
+                    movie.ReleaseDate = model.ReleaseDate.Value;
+                }
+
+                if (model.Duration.HasValue)
+                {
+                    movie.Duration = model.Duration.Value;
+                }
+
+                if (model.Description != null)
+                {
+                    movie.Description = model.Description;
+                }
+
+                if (model.TeaserUrl != null)
+                {
+                    movie.TeaserUrl = model.TeaserUrl;
+                }
+
+                if (model.AdminRating.HasValue)
+                {
+                    movie.AdminRating = model.AdminRating.Value;
+                }
+
+                // Foto√∞raf g√ºncellemesi
+                if (model.PhotoUrl != null)
+                {
+                    string fileName = Guid.NewGuid().ToString() + Path.GetExtension(model.PhotoUrl.FileName);
+                    string productPath = Path.Combine(_webHostEnvironment.WebRootPath, @"images/moviePhotos");
+                    using (var fileStream = new FileStream(Path.Combine(productPath, fileName), FileMode.Create))
+                    {
+                        await model.PhotoUrl.CopyToAsync(fileStream);
+                    }
+                    movie.PhotoUrl = fileName;
+                }
+
+                await _movieManager.UpdateAsync(movie);
+
+                // Akt√∂r, Y√∂netmen, Kategori ili√ækilerini g√ºncelleyin
+                await _movieActorManager.UpdateMovieActorsAsync(movie.Id, model.SelectedActorIds ?? new List<int>());
+                await _movieDirectorManager.UpdateMovieDirectorsAsync(movie.Id, model.SelectedDirectorIds ?? new List<int>());
+                await _movieCategoryManager.UpdateMovieCategoriesAsync(movie.Id, model.SelectedCategoryIds ?? new List<int>());
+
+                return RedirectToAction("Index", "Home");
             }
-            movie.PhotoUrl = fileName;
-        }
 
-        await _movieManager.UpdateAsync(movie);
+            // E√∞er bir hata varsa, formu tekrar g√∂r√ºnt√ºle
+            ViewData["Actors"] = new SelectList(await _actorManager.GetAllAsync(), "Id", "FullName");
+            ViewData["Directors"] = new SelectList(await _directorManager.GetAllAsync(), "Id", "FullName");
+            ViewData["Categories"] = new SelectList(await _categoryManager.GetAllAsync(), "Id", "Name");
 
-        // Aktˆr, Yˆnetmen, Kategori ili˛kilerini g¸ncelleyin
-        await _movieActorManager.UpdateMovieActorsAsync(movie.Id, model.SelectedActorIds ?? new List<int>());
-        await _movieDirectorManager.UpdateMovieDirectorsAsync(movie.Id, model.SelectedDirectorIds ?? new List<int>());
-        await _movieCategoryManager.UpdateMovieCategoriesAsync(movie.Id, model.SelectedCategoryIds ?? new List<int>());
-
-        return RedirectToAction("Index", "Home");
-    }
-
-    // Eer bir hata varsa, formu tekrar gˆr¸nt¸le
-    ViewData["Actors"] = new SelectList(await _actorManager.GetAllAsync(), "Id", "FullName");
-    ViewData["Directors"] = new SelectList(await _directorManager.GetAllAsync(), "Id", "FullName");
-    ViewData["Categories"] = new SelectList(await _categoryManager.GetAllAsync(), "Id", "Name");
-
-    return View(model);
+            return View(model);
 
         }
 
-//      public async Task<IActionResult> Index(int? pageNumber)
-//{
-//    int pageSize = 10; // Sayfa ba˛˝na gˆsterilecek ˆe say˝s˝
-//    var movies = _movieManager.GetAllMovies() // GetAllMovies() yerine uygun bir metot ad˝ kullan˝n
-//        .Include(m => m.MovieActors)
-//        .Include(m => m.MovieDirectors)
-//        .AsNoTracking(); // ›zlemeyi kapat˝r, performans˝ art˝rabilir
-//    var pagedMovies = await PaginatedList<Movie>.CreateAsync(movies, pageNumber ?? 1, pageSize);
-//    return View(pagedMovies);
-//}
+        //      public async Task<IActionResult> Index(int? pageNumber)
+        //{
+        //    int pageSize = 10; // Sayfa ba√æ√Ωna g√∂sterilecek √∂√∞e say√Ωs√Ω
+        //    var movies = _movieManager.GetAllMovies() // GetAllMovies() yerine uygun bir metot ad√Ω kullan√Ωn
+        //        .Include(m => m.MovieActors)
+        //        .Include(m => m.MovieDirectors)
+        //        .AsNoTracking(); // √ùzlemeyi kapat√Ωr, performans√Ω art√Ωrabilir
+        //    var pagedMovies = await PaginatedList<Movie>.CreateAsync(movies, pageNumber ?? 1, pageSize);
+        //    return View(pagedMovies);
+        //}
 
 
 

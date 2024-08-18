@@ -14,6 +14,7 @@ namespace FilmCritique.BL.Managers.Abstract
     {
 
         Task<Movie> GetMovieByIdAsync(int id);
+        Task<List<UserReview>> GetCommentsByMovieIdAsync(int movieId);
 
     }
 }

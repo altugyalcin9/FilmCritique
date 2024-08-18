@@ -15,14 +15,15 @@ namespace FilmCritique
 
             // Add services to the container.
             builder.Services.AddControllersWithViews();
+
+            // Configure DbContext with MySQL
             builder.Services.AddDbContext<AppDbContext>(options =>
             {
-                var config = builder.Configuration;
-                var connectionString = "Server=127.0.0.1;Database=FilmCritique;Uid=root;Pwd=Password2002;";
+                var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
                 options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString));
             });
 
-            // Identity hizmetlerini ekleyin
+            // Configure Identity services
             builder.Services.AddIdentity<AppUser, IdentityRole>(options =>
             {
                 options.Password.RequireDigit = true;
@@ -34,7 +35,7 @@ namespace FilmCritique
             .AddEntityFrameworkStores<AppDbContext>()
             .AddDefaultTokenProviders();
 
-            // DI ile baðýmlýlýklarý ekleyin
+            // Register dependencies for managers
             builder.Services.AddScoped<IMovieManager, MovieManager>();
             builder.Services.AddScoped<IActorManager, ActorManager>();
             builder.Services.AddScoped<IMovieActorManager, MovieActorManager>();
@@ -45,10 +46,10 @@ namespace FilmCritique
 
             var app = builder.Build();
 
-            // Role setup
+            // Setup roles and default users
             CreateRolesAndUsers(app).Wait();
 
-            // Configure the HTTP request pipeline.
+            // Configure the HTTP request pipeline
             if (!app.Environment.IsDevelopment())
             {
                 app.UseExceptionHandler("/Home/Error");
@@ -57,10 +58,8 @@ namespace FilmCritique
 
             app.UseHttpsRedirection();
             app.UseStaticFiles();
-
             app.UseRouting();
-
-            app.UseAuthentication(); // Identity için Authentication middleware'i ekleyin
+            app.UseAuthentication(); // Authentication middleware
             app.UseAuthorization();
 
             app.MapControllerRoute(
@@ -93,7 +92,7 @@ namespace FilmCritique
                 var adminUser = await userManager.FindByEmailAsync("admin@filmcritique.com");
                 if (adminUser == null)
                 {
-                    adminUser = new AppUser()
+                    adminUser = new AppUser
                     {
                         UserName = "admin",
                         Email = "admin@filmcritique.com",
@@ -103,7 +102,6 @@ namespace FilmCritique
                     await userManager.CreateAsync(adminUser, "Admin@123");
                 }
 
-                // Add admin user to Admin role
                 if (!await userManager.IsInRoleAsync(adminUser, "Admin"))
                 {
                     await userManager.AddToRoleAsync(adminUser, "Admin");
@@ -113,7 +111,7 @@ namespace FilmCritique
                 var defaultUser = await userManager.FindByEmailAsync("user@filmcritique.com");
                 if (defaultUser == null)
                 {
-                    defaultUser = new AppUser()
+                    defaultUser = new AppUser
                     {
                         UserName = "user",
                         Email = "user@filmcritique.com",
@@ -123,7 +121,6 @@ namespace FilmCritique
                     await userManager.CreateAsync(defaultUser, "User@123");
                 }
 
-                // Add default user to User role
                 if (!await userManager.IsInRoleAsync(defaultUser, "User"))
                 {
                     await userManager.AddToRoleAsync(defaultUser, "User");

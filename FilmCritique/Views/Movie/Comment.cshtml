@@ -1,4 +1,7 @@
 ﻿@model FilmCritique.Entities.Model.Concrete.Movie
+@{
+    var comments = ViewBag.Comments as List<FilmCritique.Entities.Model.Concrete.UserReview>;
+}
 <style>
     /* Video container'ı için stil */
     .video-container {
@@ -130,54 +133,50 @@
                 }
             </p>
             <p><strong>Admin Rating:</strong> @Model.AdminRating / 10</p>
-
         </div>
     </div>
 
-   @*  @if (!string.IsNullOrEmpty(Model.TeaserUrl))
-    {
-
-        // URL'den video ID'sini çıkartma
-        var videoUrl = new Uri(Model.TeaserUrl);
-        var queryParameters = Microsoft.AspNetCore.WebUtilities.QueryHelpers.ParseQuery(videoUrl.Query);
-        var videoId = queryParameters["v"].ToString();
-        var embedUrl = $"https://www.youtube.com/embed/{videoId}";
-
-
-        <div class="video-container col-12 justify-content-center mt-3">
-            <iframe width="560" height="315" src="@embedUrl" frameborder="0" allowfullscreen></iframe>
-        </div>
-    } *@
-    @foreach(var c in ViewBag.Comments)
-    {
-        <a>@c</a>
-    }
-    @*     <h4 class="mt-3">
-        Açıklama
-    </h4>
-    <p class="">@Model.Description</p>
-
-    <h3>Directors</h3>
-    <ul class="info-list">
-        @foreach (var director in Model.MovieDirectors)
+    <!-- Yorumlar -->
+    <div class="mt-4">
+        <h4>Comments</h4>
+        @if (comments != null && comments.Any())
         {
-            <li>@director.Director.FullName</li>
+            <ul>
+                @foreach (var comment in comments)
+                {
+                    <li>
+                        <strong>@comment.UserId:</strong> @comment.Comment - Rating: @comment.Rating
+                    </li>
+                }
+            </ul>
         }
-    </ul>
-
-    <h3>Actors</h3>
-    <ul class="info-list">
-        @foreach (var actor in Model.MovieActors)
+        else
         {
-            <li>@actor.Actor.FullName</li>
+            <p>No comments yet.</p>
         }
-    </ul>
+    </div>
 
-    <h3>Categories</h3>
-    <ul class="info-list">
-        @foreach (var category in Model.MovieCategories)
+    <!-- Yorum Ekleme Formu -->
+    <div class="mt-4">
+        <h4>Add a Comment</h4>
+        @using (Html.BeginForm("Comment", "Movie", FormMethod.Post))
         {
-            <li>@category.Category.Name</li>
+            <input type="hidden" name="movieId" value="@Model.Id" />
+            <div class="form-group">
+                <label for="comment">Comment:</label>
+                <textarea id="comment" name="comment" class="form-control" rows="4" required></textarea>
+            </div>
+            <div class="form-group">
+                <label for="rating">Rating:</label>
+                <select id="rating" name="rating" class="form-control" required>
+                    <option value="">Select Rating</option>
+                    @for (int i = 1; i <= 10; i++)
+                    {
+                        <option value="@i">@i</option>
+                    }
+                </select>
+            </div>
+            <button type="submit" class="btn btn-primary">Submit</button>
         }
-    </ul> *@
+    </div>
 </div>

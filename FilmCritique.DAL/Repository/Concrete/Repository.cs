@@ -70,7 +70,7 @@ namespace FilmCritique.DAL.Repository.Concrete
             return await _dbSet.FindAsync(id);
         }
         public IQueryable<T> GetAllInclude(params Expression<Func<T, object>>[] includes)
-        { // 0505 806 1986 Bilge Pınar Oğuz kariyer eğitmen
+        { 
             IQueryable<T> query = _dbSet;
             foreach (var include in includes)
             {
