@@ -45,6 +45,25 @@ namespace FilmCritique
 
             var app = builder.Build();
 
+            #region role deneme
+            //using (var scope = app.Services.CreateScope())
+            //{
+            //    var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+
+            //    string[] roleNames = { "Admin", "User" };
+            //    IdentityResult roleResult;
+
+            //    foreach (var roleName in roleNames)
+            //    {
+            //        var roleExist = await roleManager.RoleExistsAsync(roleName);
+            //        if (!roleExist)
+            //        {
+            //            roleResult = await roleManager.CreateAsync(new IdentityRole(roleName));
+            //        }
+            //    }
+            //}
+            #endregion
+
             // Configure the HTTP request pipeline.
             if (!app.Environment.IsDevelopment())
             {

@@ -65,6 +65,7 @@ namespace FilmCritique.Controllers
 
                 if (result.Succeeded)
                 {
+                  //  await _userManager.AddToRoleAsync(user, "User"); //son eklediklerim
                     await _signInManager.SignInAsync(user, isPersistent: false);
                     return RedirectToAction("Index", "Home");
                 }
@@ -78,6 +79,48 @@ namespace FilmCritique.Controllers
             // Eğer buraya geldiyseniz, formda bir hata var demektir. Formu tekrar gösteriyoruz.
             return View(model);
         }
+        #region rol deneme
+        //[HttpPost]
+        //public async Task<IActionResult> Register(RegisterViewModel model)
+        //{
+        //    if (ModelState.IsValid)
+        //    {
+        //        var user = new AppUser
+        //        {
+        //            FirstName = model.FirstName,
+        //            LastName = model.LastName,
+        //            UserName = model.Email,
+        //            Email = model.Email
+        //        };
+        //        var result = await _userManager.CreateAsync(user, model.Password);
+
+        //        if (result.Succeeded)
+        //        {
+        //            // Kullanıcıyı varsayılan olarak "User" rolüne ata
+        //            await _userManager.AddToRoleAsync(user, "User");
+        //            await _signInManager.SignInAsync(user, isPersistent: false);
+        //            return RedirectToAction("Index", "Home");
+        //        }
+
+        //        foreach (var error in result.Errors)
+        //        {
+        //            ModelState.AddModelError(string.Empty, error.Description);
+        //        }
+        //    }
+
+        //    // Eğer buraya geldiyseniz, formda bir hata var demektir. Formu tekrar gösteriyoruz.
+        //    return View(model);
+        //}
+        #endregion
+
+        //son yaptıklarım
+        [HttpPost]
+        public async Task<IActionResult> Logout()
+        {
+            await _signInManager.SignOutAsync();
+            return RedirectToAction("Login", "Account");
+        }
+
 
     }
 }
