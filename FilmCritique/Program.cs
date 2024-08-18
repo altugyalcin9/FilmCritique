@@ -1,9 +1,9 @@
 using FilmCritique.BL.Managers.Abstract;
 using FilmCritique.BL.Managers.Concrete;
 using FilmCritique.Entities.DbContexts;
-using FilmCritique.Entities.Model.Concrete; // AppUser sýnýfýný eklediðinizden emin olun
+using FilmCritique.Entities.Model.Concrete;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.AspNetCore.Identity; // Identity için gerekli kütüphane
+using Microsoft.AspNetCore.Identity;
 
 namespace FilmCritique
 {
@@ -45,24 +45,8 @@ namespace FilmCritique
 
             var app = builder.Build();
 
-            #region role deneme
-            //using (var scope = app.Services.CreateScope())
-            //{
-            //    var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
-
-            //    string[] roleNames = { "Admin", "User" };
-            //    IdentityResult roleResult;
-
-            //    foreach (var roleName in roleNames)
-            //    {
-            //        var roleExist = await roleManager.RoleExistsAsync(roleName);
-            //        if (!roleExist)
-            //        {
-            //            roleResult = await roleManager.CreateAsync(new IdentityRole(roleName));
-            //        }
-            //    }
-            //}
-            #endregion
+            // Role setup
+            CreateRolesAndUsers(app).Wait();
 
             // Configure the HTTP request pipeline.
             if (!app.Environment.IsDevelopment())
@@ -84,6 +68,67 @@ namespace FilmCritique
                 pattern: "{controller=Home}/{action=Index}/{id?}");
 
             app.Run();
+        }
+
+        private static async Task CreateRolesAndUsers(WebApplication app)
+        {
+            using (var serviceScope = app.Services.CreateScope())
+            {
+                var roleManager = serviceScope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+                var userManager = serviceScope.ServiceProvider.GetRequiredService<UserManager<AppUser>>();
+
+                string[] roleNames = { "Admin", "User" };
+                IdentityResult roleResult;
+
+                foreach (var roleName in roleNames)
+                {
+                    var roleExist = await roleManager.RoleExistsAsync(roleName);
+                    if (!roleExist)
+                    {
+                        roleResult = await roleManager.CreateAsync(new IdentityRole(roleName));
+                    }
+                }
+
+                // Create a default admin user
+                var adminUser = await userManager.FindByEmailAsync("admin@filmcritique.com");
+                if (adminUser == null)
+                {
+                    adminUser = new AppUser()
+                    {
+                        UserName = "admin",
+                        Email = "admin@filmcritique.com",
+                        FirstName = "Admin",
+                        LastName = "User"
+                    };
+                    await userManager.CreateAsync(adminUser, "Admin@123");
+                }
+
+                // Add admin user to Admin role
+                if (!await userManager.IsInRoleAsync(adminUser, "Admin"))
+                {
+                    await userManager.AddToRoleAsync(adminUser, "Admin");
+                }
+
+                // Create a default user
+                var defaultUser = await userManager.FindByEmailAsync("user@filmcritique.com");
+                if (defaultUser == null)
+                {
+                    defaultUser = new AppUser()
+                    {
+                        UserName = "user",
+                        Email = "user@filmcritique.com",
+                        FirstName = "Default",
+                        LastName = "User"
+                    };
+                    await userManager.CreateAsync(defaultUser, "User@123");
+                }
+
+                // Add default user to User role
+                if (!await userManager.IsInRoleAsync(defaultUser, "User"))
+                {
+                    await userManager.AddToRoleAsync(defaultUser, "User");
+                }
+            }
         }
     }
 }

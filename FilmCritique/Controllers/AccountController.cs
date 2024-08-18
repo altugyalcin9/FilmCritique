@@ -2,9 +2,9 @@
 using FilmCritique.Entities.Model.Concrete;
 using FilmCritique.Models.ViewModels;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using FilmCritique.Models;
 using Microsoft.AspNetCore.Identity;
+using System.Threading.Tasks;
+using FilmCritique.Models;
 
 namespace FilmCritique.Controllers
 {
@@ -20,7 +20,6 @@ namespace FilmCritique.Controllers
             _signInManager = signInManager;
             _context = context;
         }
-
 
         [HttpGet]
         public IActionResult Login()
@@ -40,7 +39,15 @@ namespace FilmCritique.Controllers
                     var result = await _signInManager.PasswordSignInAsync(user, model.Password, false, false);
                     if (result.Succeeded)
                     {
-                        return RedirectToAction("Index", "Home");
+                        var roles = await _userManager.GetRolesAsync(user);
+                        if (roles.Contains("Admin"))
+                        {
+                            return RedirectToAction("Index", "Admin"); // Admin sayfasına yönlendir
+                        }
+                        else
+                        {
+                            return RedirectToAction("Index", "Home"); // Kullanıcı sayfasına yönlendir
+                        }
                     }
                 }
 
@@ -49,6 +56,7 @@ namespace FilmCritique.Controllers
 
             return View(model);
         }
+
         [HttpGet]
         public IActionResult Register()
         {
@@ -60,14 +68,22 @@ namespace FilmCritique.Controllers
         {
             if (ModelState.IsValid)
             {
-                var user = new AppUser { FirstName=model.FirstName,LastName=model.LastName , UserName = model.Email, Email = model.Email };
+                var user = new AppUser
+                {
+                    FirstName = model.FirstName,
+                    LastName = model.LastName,
+                    UserName = model.Email,
+                    Email = model.Email
+                };
+
                 var result = await _userManager.CreateAsync(user, model.Password);
 
                 if (result.Succeeded)
                 {
-                  //  await _userManager.AddToRoleAsync(user, "User"); //son eklediklerim
+                    // Kullanıcıyı varsayılan olarak "User" rolüne ata
+                    await _userManager.AddToRoleAsync(user, "User");
                     await _signInManager.SignInAsync(user, isPersistent: false);
-                    return RedirectToAction("Index", "Home");
+                    return RedirectToAction("Index", "Home"); // Kayıt sonrası kullanıcıyı yönlendir
                 }
 
                 foreach (var error in result.Errors)
@@ -76,51 +92,14 @@ namespace FilmCritique.Controllers
                 }
             }
 
-            // Eğer buraya geldiyseniz, formda bir hata var demektir. Formu tekrar gösteriyoruz.
             return View(model);
         }
-        #region rol deneme
-        //[HttpPost]
-        //public async Task<IActionResult> Register(RegisterViewModel model)
-        //{
-        //    if (ModelState.IsValid)
-        //    {
-        //        var user = new AppUser
-        //        {
-        //            FirstName = model.FirstName,
-        //            LastName = model.LastName,
-        //            UserName = model.Email,
-        //            Email = model.Email
-        //        };
-        //        var result = await _userManager.CreateAsync(user, model.Password);
 
-        //        if (result.Succeeded)
-        //        {
-        //            // Kullanıcıyı varsayılan olarak "User" rolüne ata
-        //            await _userManager.AddToRoleAsync(user, "User");
-        //            await _signInManager.SignInAsync(user, isPersistent: false);
-        //            return RedirectToAction("Index", "Home");
-        //        }
-
-        //        foreach (var error in result.Errors)
-        //        {
-        //            ModelState.AddModelError(string.Empty, error.Description);
-        //        }
-        //    }
-
-        //    // Eğer buraya geldiyseniz, formda bir hata var demektir. Formu tekrar gösteriyoruz.
-        //    return View(model);
-        //}
-        #endregion
-
-        //son yaptıklarım
         [HttpPost]
         public async Task<IActionResult> Logout()
         {
             await _signInManager.SignOutAsync();
             return RedirectToAction("Login", "Account");
         }
-
-
     }
 }

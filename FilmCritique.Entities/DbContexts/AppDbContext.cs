@@ -21,6 +21,7 @@ namespace FilmCritique.Entities.DbContexts
         public DbSet<Director> Directors { get; set; }
 
         public DbSet<Movie> Movies { get; set; }
+        //public DbSet<UserReview> UserReviews { get; set; }
 
         public DbSet<MovieActor> MovieActors { get; set; }
 
