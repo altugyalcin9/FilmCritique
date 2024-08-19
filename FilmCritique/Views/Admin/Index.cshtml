@@ -1,8 +1,8 @@
 ﻿@model IEnumerable<FilmCritique.Entities.Model.Concrete.Movie>
 
-@{
+@* @{
     ViewData["Title"] = "Admin Dashboard";
-}
+} *@
 
 <style>
     .card {
@@ -46,8 +46,8 @@
 </style>
 
 <div class="container mt-4">
-    <h2>Admin Dashboard</h2>
-    <div class="card-deck">
+@*     <h2>Admin Dashboard</h2>
+ *@    <div class="card-deck">
         @foreach (var movie in Model)
         {
             <div class="card border-2 shadow border-secondary">
@@ -61,6 +61,7 @@
                         <a asp-action="Delete" asp-controller="Movie" asp-route-id="@movie.Id" class="btn btn-danger">Delete</a>
                     </div>
                 </div>
+
                 <div class="card-footer text-muted">
                     Release Date: @movie.ReleaseDate.ToString("MMMM dd, yyyy")<br>
                     Duration: @movie.Duration minutes<br>
