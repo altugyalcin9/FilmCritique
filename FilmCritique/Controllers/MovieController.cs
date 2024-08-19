@@ -214,6 +214,23 @@ namespace FilmCritique.Controllers
             return View(model);
         }
 
+        //// GET: Movie/Search
+        //[HttpGet]
+        //public async Task<IActionResult> Search(string query)
+        //{
+        //    if (string.IsNullOrWhiteSpace(query))
+        //    {
+        //        return View("Index", await _movieManager.GetAllMoviesAsync());
+        //    }
+
+        //    var movies = await _movieManager.SearchMoviesAsync(query);
+        //    return View("Index", movies);
+        //}
+
+
+
+
+
         // MovieController.cs
         [HttpGet]
         public async Task<IActionResult> Comment([FromRoute] int id)
@@ -236,11 +253,18 @@ namespace FilmCritique.Controllers
         }
 
 
-
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Comment(int id, CreateReviewViewModel model)
         {
+            // Giriş yapmamış kullanıcıların yorum yapmasını engelle
+            if (!User.Identity.IsAuthenticated)
+            {
+                TempData["Warning"] = "You must be logged in to comment.";
+                return RedirectToAction("Comment", new { id = id });
+            }
+
+            // Model doğrulama
             if (!ModelState.IsValid)
             {
                 // Yorum oluşturulamadıysa, mevcut filmi ve yorumları tekrar göster
@@ -257,7 +281,7 @@ namespace FilmCritique.Controllers
                 ViewBag.movie = "movie";
                 var comments = await _context.UserReviews
                     .Where(r => r.MovieId == id)
-                    .Select(r => r.Comment)
+                    .Select(r => new { r.Comment, r.UserId }) // UserId ekle
                     .ToListAsync();
 
                 ViewBag.Comments = comments;
@@ -283,6 +307,7 @@ namespace FilmCritique.Controllers
 
             return RedirectToAction("Comment", new { id = id });
         }
+
 
 
 

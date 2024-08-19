@@ -27,6 +27,14 @@ namespace FilmCritique.BL.Managers.Concrete
                                  .ToListAsync();
         }
 
+        public async Task<IEnumerable<Movie>> SearchMoviesAsync(string query)
+        {
+            return await _context.Movies
+                .Where(m => m.MovieName.Contains(query, StringComparison.OrdinalIgnoreCase))
+                .ToListAsync();
+        }
+
+
 
         public async Task<Movie> GetMovieByIdAsync(int id)
         {

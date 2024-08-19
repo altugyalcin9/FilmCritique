@@ -1,6 +1,7 @@
 ﻿@model FilmCritique.Entities.Model.Concrete.Movie
 @{
     var comments = ViewBag.Comments as List<FilmCritique.Entities.Model.Concrete.UserReview>;
+    var warningMessage = TempData["Warning"] as string;
 }
 <style>
     /* Video container'ı için stil */
@@ -156,27 +157,44 @@
         }
     </div>
 
+    <!-- Uyarı Mesajı -->
+    @if (!string.IsNullOrEmpty(warningMessage))
+    {
+        <div class="alert alert-warning">
+            @warningMessage
+        </div>
+    }
+
     <!-- Yorum Ekleme Formu -->
-    <div class="mt-4">
-        <h4>Add a Comment</h4>
-        @using (Html.BeginForm("Comment", "Movie", FormMethod.Post))
-        {
-            <input type="hidden" name="movieId" value="@Model.Id" />
-            <div class="form-group">
-                <label for="comment">Comment:</label>
-                <textarea id="comment" name="comment" class="form-control" rows="4" required></textarea>
-            </div>
-            <div class="form-group">
-                <label for="rating">Rating:</label>
-                <select id="rating" name="rating" class="form-control" required>
-                    <option value="">Select Rating</option>
-                    @for (int i = 1; i <= 10; i++)
-                    {
-                        <option value="@i">@i</option>
-                    }
-                </select>
-            </div>
-            <button type="submit" class="btn btn-primary">Submit</button>
-        }
-    </div>
+    @if (User.Identity.IsAuthenticated)
+    {
+        <div class="mt-4">
+            <h4>Add a Comment</h4>
+            @using (Html.BeginForm("Comment", "Movie", FormMethod.Post))
+            {
+                <input type="hidden" name="id" value="@Model.Id" />
+                <div class="form-group">
+                    <label for="comment">Comment:</label>
+                    <textarea id="comment" name="comment" class="form-control" rows="4" required></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="rating">Rating:</label>
+                    <select id="rating" name="rating" class="form-control" required>
+                        <option value="">Select Rating</option>
+                        @for (int i = 1; i <= 10; i++)
+                        {
+                            <option value="@i">@i</option>
+                        }
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-primary">Submit</button>
+            }
+        </div>
+    }
+    else
+    {
+        <div class="alert alert-info">
+            You need to be logged in to add a comment.
+        </div>
+    }
 </div>
