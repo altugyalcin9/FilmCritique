@@ -6,7 +6,9 @@ user@filmcritique.com   şifre:User@123
 
 
 FilmCritique
+
 Proje Özeti
+
 FilmCritique, film değerlendirme ve yönetim platformudur. Bu proje, kullanıcıların filmleri inceleyebileceği, yorum yapabileceği ve yöneticilerin filmleri ekleyip düzenleyebileceği bir web uygulamasıdır. Proje, ASP.NET MVC framework'ü kullanılarak geliştirilmiştir.
 
 Özellikler
