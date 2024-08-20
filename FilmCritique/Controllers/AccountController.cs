@@ -42,11 +42,11 @@ namespace FilmCritique.Controllers
                         var roles = await _userManager.GetRolesAsync(user);
                         if (roles.Contains("Admin"))
                         {
-                            return RedirectToAction("Index", "Admin"); // Admin sayfasına yönlendir
+                            return RedirectToAction("Index", "Admin"); 
                         }
                         else
                         {
-                            return RedirectToAction("Index", "Home"); // Kullanıcı sayfasına yönlendir
+                            return RedirectToAction("Index", "Home"); 
                         }
                     }
                 }
@@ -80,10 +80,10 @@ namespace FilmCritique.Controllers
 
                 if (result.Succeeded)
                 {
-                    // Kullanıcıyı varsayılan olarak "User" rolüne ata
+                  
                     await _userManager.AddToRoleAsync(user, "User");
                     await _signInManager.SignInAsync(user, isPersistent: false);
-                    return RedirectToAction("Index", "Home"); // Kayıt sonrası kullanıcıyı yönlendir
+                    return RedirectToAction("Index", "Home"); 
                 }
 
                 foreach (var error in result.Errors)

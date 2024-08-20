@@ -4,6 +4,7 @@ using FilmCritique.Entities.DbContexts;
 using FilmCritique.Entities.Model.Concrete;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Authorization;
 
 namespace FilmCritique
 {
@@ -13,17 +14,14 @@ namespace FilmCritique
         {
             var builder = WebApplication.CreateBuilder(args);
 
-            // Add services to the container.
             builder.Services.AddControllersWithViews();
 
-            // Configure DbContext with MySQL
             builder.Services.AddDbContext<AppDbContext>(options =>
             {
                 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
                 options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString));
             });
 
-            // Configure Identity services
             builder.Services.AddIdentity<AppUser, IdentityRole>(options =>
             {
                 options.Password.RequireDigit = true;
@@ -35,7 +33,6 @@ namespace FilmCritique
             .AddEntityFrameworkStores<AppDbContext>()
             .AddDefaultTokenProviders();
 
-            // Register dependencies for managers
             builder.Services.AddScoped<IMovieManager, MovieManager>();
             builder.Services.AddScoped<IActorManager, ActorManager>();
             builder.Services.AddScoped<IMovieActorManager, MovieActorManager>();
@@ -46,10 +43,8 @@ namespace FilmCritique
 
             var app = builder.Build();
 
-            // Setup roles and default users
             CreateRolesAndUsers(app).Wait();
 
-            // Configure the HTTP request pipeline
             if (!app.Environment.IsDevelopment())
             {
                 app.UseExceptionHandler("/Home/Error");
@@ -59,12 +54,17 @@ namespace FilmCritique
             app.UseHttpsRedirection();
             app.UseStaticFiles();
             app.UseRouting();
-            app.UseAuthentication(); // Authentication middleware
+            app.UseAuthentication();
             app.UseAuthorization();
 
             app.MapControllerRoute(
                 name: "default",
                 pattern: "{controller=Home}/{action=Index}/{id?}");
+
+            app.MapControllerRoute(
+                name: "admin",
+                pattern: "{controller=Admin}/{action=Index}/{id?}")
+                .RequireAuthorization(new AuthorizeAttribute());
 
             app.Run();
         }
@@ -88,7 +88,6 @@ namespace FilmCritique
                     }
                 }
 
-                // Create a default admin user
                 var adminUser = await userManager.FindByEmailAsync("admin@filmcritique.com");
                 if (adminUser == null)
                 {
@@ -107,7 +106,6 @@ namespace FilmCritique
                     await userManager.AddToRoleAsync(adminUser, "Admin");
                 }
 
-                // Create a default user
                 var defaultUser = await userManager.FindByEmailAsync("user@filmcritique.com");
                 if (defaultUser == null)
                 {

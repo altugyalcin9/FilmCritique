@@ -1,25 +1,23 @@
 ﻿@model FilmCritique.Entities.Model.Concrete.Movie
 <style>
-    /* Video container'ı için stil */
+
     .video-container {
         position: relative;
-        padding-bottom: 56.25%; /* 16:9 Aspect Ratio */
+        padding-bottom: 56.25%; 
         height: 0;
         overflow: hidden;
         max-width: 100%;
         background: #000;
-        margin: 0 auto; /* Yatay ortalama */
+        margin: 0 auto; 
     }
 
-    /* Video wrapper'ı ortalamak için stil */
     .video-wrapper {
         display: flex;
-        justify-content: center; /* Yatay ortalama */
-        align-items: center; /* Dikey ortalama */
-        height: 100%; /* Yüksekliği içeriğin yüksekliğine göre ayarlar */
+        justify-content: center; 
+        align-items: center; 
+        height: 100%; 
     }
 
-    /* iframe'i tam olarak yerleştirmek için stil */
     .video-container iframe {
         position: absolute;
         top: 0;
@@ -29,9 +27,9 @@
     }
 
     .movie-poster {
-        max-width: 100%; /* Resmi container genişliğine göre sınırla */
-        height: auto; /* Yüksekliği orantılı olarak ayarla */
-        border-radius: 8px; /* Köşeleri yuvarla */
+        max-width: 100%; 
+        height: auto; 
+        border-radius: 8px; 
     }
 
     .movie-details {
@@ -99,7 +97,6 @@
     @if (!string.IsNullOrEmpty(Model.TeaserUrl))
     {
 
-        // URL'den video ID'sini çıkartma
         var videoUrl = new Uri(Model.TeaserUrl);
         var queryParameters = Microsoft.AspNetCore.WebUtilities.QueryHelpers.ParseQuery(videoUrl.Query);
         var videoId = queryParameters["v"].ToString();

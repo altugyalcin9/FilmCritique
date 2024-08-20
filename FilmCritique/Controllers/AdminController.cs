@@ -3,9 +3,11 @@ using FilmCritique.Models.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Identity;
 using FilmCritique.BL.Managers.Abstract;
+using Microsoft.AspNetCore.Authorization;
 
 namespace FilmCritique.Controllers
 {
+    [Authorize]
     public class AdminController : Controller
     {
         private readonly IMovieManager _movieManager;
@@ -19,7 +21,7 @@ namespace FilmCritique.Controllers
 
         public async Task<IActionResult> Index()
         {
-            // Admin sayfası için gerekli verileri al
+           
             List<Movie> movies = await _movieManager.GetAllAsync();
             return View(movies);
         }

@@ -37,7 +37,6 @@ namespace FilmCritique.Entities.DbContexts
         public AppDbContext()
         {
         }
-        // Define DbSets for your entities
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {

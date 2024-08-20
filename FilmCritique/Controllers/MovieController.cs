@@ -90,10 +90,8 @@ namespace FilmCritique.Controllers
 
 
                 await _movieManager.InsertAsync(movie);
-                // Add the movie to the database
 
 
-                // Adding MovieActor relationships
                 if (model.SelectedActorIds != null && model.SelectedActorIds.Any())
                 {
                     foreach (var actorId in model.SelectedActorIds)
@@ -108,7 +106,6 @@ namespace FilmCritique.Controllers
                     }
                 }
 
-                // Adding MovieDirector relationships
                 if (model.SelectedDirectorIds != null && model.SelectedDirectorIds.Any())
                 {
                     foreach (var directorId in model.SelectedDirectorIds)
@@ -123,7 +120,6 @@ namespace FilmCritique.Controllers
                     }
                 }
 
-                // Adding MovieCategory relationships
                 if (model.SelectedCategoryIds != null && model.SelectedCategoryIds.Any())
                 {
                     foreach (var categoryId in model.SelectedCategoryIds)
@@ -145,7 +141,6 @@ namespace FilmCritique.Controllers
 
 
 
-            // If we got this far, something failed, redisplay form
             ViewData["Actors"] = new SelectList(await _actorManager.GetAllAsync(), "Id", "FullName");
             ViewData["Directors"] = new SelectList(await _directorManager.GetAllAsync(), "Id", "FullName");
             ViewData["Categories"] = new SelectList(await _categoryManager.GetAllAsync(), "Id", "Name"); return View(model);
@@ -214,19 +209,8 @@ namespace FilmCritique.Controllers
             return View(model);
         }
 
-        //// GET: Movie/Search
-        //[HttpGet]
-        //public async Task<IActionResult> Search(string query)
-        //{
-        //    if (string.IsNullOrWhiteSpace(query))
-        //    {
-        //        return View("Index", await _movieManager.GetAllMoviesAsync());
-        //    }
 
-        //    var movies = await _movieManager.SearchMoviesAsync(query);
-        //    return View("Index", movies);
-        //}
-
+ 
 
 
 
@@ -257,17 +241,14 @@ namespace FilmCritique.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Comment(int id, CreateReviewViewModel model)
         {
-            // Giriş yapmamış kullanıcıların yorum yapmasını engelle
             if (!User.Identity.IsAuthenticated)
             {
                 TempData["Warning"] = "You must be logged in to comment.";
                 return RedirectToAction("Comment", new { id = id });
             }
 
-            // Model doğrulama
             if (!ModelState.IsValid)
             {
-                // Yorum oluşturulamadıysa, mevcut filmi ve yorumları tekrar göster
                 var movie = await _context.Movies
                     .Include(m => m.MovieActors)
                     .Include(m => m.MovieDirectors)
@@ -281,7 +262,7 @@ namespace FilmCritique.Controllers
                 ViewBag.movie = "movie";
                 var comments = await _context.UserReviews
                     .Where(r => r.MovieId == id)
-                    .Select(r => new { r.Comment, r.UserId }) // UserId ekle
+                    .Select(r => new { r.Comment, r.UserId }) 
                     .ToListAsync();
 
                 ViewBag.Comments = comments;
@@ -293,13 +274,13 @@ namespace FilmCritique.Controllers
             }
 
             // Yorum ekleme işlemi
-            var userId = User.Identity.Name; // Şu anki kullanıcının ID'si
+            var userId = User.Identity.Name; 
             var review = new UserReview
             {
                 Comment = model.Comment,
                 Rating = model.Rating,
                 MovieId = id,
-                UserId = userId // Kullanıcı ID'sini ekle
+                UserId = userId 
             };
 
             _context.UserReviews.Add(review);
@@ -327,7 +308,6 @@ namespace FilmCritique.Controllers
                     return NotFound();
                 }
 
-                // Güncellenen alanlarý kontrol edin
                 if (model.MovieName != null)
                 {
                     movie.MovieName = model.MovieName;
@@ -358,7 +338,6 @@ namespace FilmCritique.Controllers
                     movie.AdminRating = model.AdminRating.Value;
                 }
 
-                // Fotoðraf güncellemesi
                 if (model.PhotoUrl != null)
                 {
                     string fileName = Guid.NewGuid().ToString() + Path.GetExtension(model.PhotoUrl.FileName);
@@ -372,7 +351,6 @@ namespace FilmCritique.Controllers
 
                 await _movieManager.UpdateAsync(movie);
 
-                // Aktör, Yönetmen, Kategori iliþkilerini güncelleyin
                 await _movieActorManager.UpdateMovieActorsAsync(movie.Id, model.SelectedActorIds ?? new List<int>());
                 await _movieDirectorManager.UpdateMovieDirectorsAsync(movie.Id, model.SelectedDirectorIds ?? new List<int>());
                 await _movieCategoryManager.UpdateMovieCategoriesAsync(movie.Id, model.SelectedCategoryIds ?? new List<int>());
@@ -380,7 +358,6 @@ namespace FilmCritique.Controllers
                 return RedirectToAction("Index", "Home");
             }
 
-            // Eðer bir hata varsa, formu tekrar görüntüle
             ViewData["Actors"] = new SelectList(await _actorManager.GetAllAsync(), "Id", "FullName");
             ViewData["Directors"] = new SelectList(await _directorManager.GetAllAsync(), "Id", "FullName");
             ViewData["Categories"] = new SelectList(await _categoryManager.GetAllAsync(), "Id", "Name");
@@ -389,22 +366,7 @@ namespace FilmCritique.Controllers
 
         }
 
-        //      public async Task<IActionResult> Index(int? pageNumber)
-        //{
-        //    int pageSize = 10; // Sayfa baþýna gösterilecek öðe sayýsý
-        //    var movies = _movieManager.GetAllMovies() // GetAllMovies() yerine uygun bir metot adý kullanýn
-        //        .Include(m => m.MovieActors)
-        //        .Include(m => m.MovieDirectors)
-        //        .AsNoTracking(); // Ýzlemeyi kapatýr, performansý artýrabilir
-        //    var pagedMovies = await PaginatedList<Movie>.CreateAsync(movies, pageNumber ?? 1, pageSize);
-        //    return View(pagedMovies);
-        //}
-
-
-
-
-
-
+       
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()
         {
