@@ -210,10 +210,6 @@ namespace FilmCritique.Controllers
         }
 
 
- 
-
-
-
 
         // MovieController.cs
         [HttpGet]
