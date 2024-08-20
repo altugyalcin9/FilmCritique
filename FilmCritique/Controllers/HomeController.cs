@@ -24,6 +24,7 @@ namespace FilmCritique.Controllers
         {
             List<Movie> movies = await _movieManager.GetAllAsync();
 
+
          
             string userRole = "User"; 
 
